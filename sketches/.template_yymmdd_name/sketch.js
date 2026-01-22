@@ -1,4 +1,14 @@
-//unnamed; month, year. 
+//untitled; arjun; month, 2026.
+
+/*
+ask: 
+
+*/
+
+/*
+thought: 
+
+*/
 
 function setup() {
   // createCanvas(1000, 562); //in 16:9 aspect ratio.
