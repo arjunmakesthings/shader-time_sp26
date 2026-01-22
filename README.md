@@ -1,2 +1,1 @@
-# shader-time_sp26
-a repo to store work done in the class 'it's shader time', by elias (elie) zananiri. 
+work done for [this class](https://arjunmakesthings.github.io/itp-blog/shader-time/) during my time at itp. 
