@@ -15,7 +15,7 @@ an enclosed body can be thought of as a group of similar colours.
 let cam;
 
 function setup() {
-  cam = createCapture(VIDEO, make_canvas);
+  cam = createCapture(VIDEO, { flipped: true }, make_canvas);
   cam.hide();
 }
 
@@ -26,17 +26,7 @@ function make_canvas() {
 
 function draw() {
   background(0);
-  push();
-  //transformations are additive. first, to get origin to top-left, we subtract 
-  translate(-width/2, -height / 2); //bring back to the center.
-    push ();
-    scale (-1,1); 
-    translate (-width, 0); 
-    image(cam, 0, 0, width, height);
-    pop(); 
-  fill(255);
-  rect(0, 0, 100, 100);
-  pop();
+  image(cam, 0, 0, width, height); 
 }
 
 //helper to convert x,y coordinates to pixels index.
