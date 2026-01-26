@@ -1,4 +1,4 @@
-//untitled; arjun; jan, 2026.
+//untitled; arjun; month, 2026.
 
 /*
 ask: 
@@ -7,134 +7,117 @@ make a reactive mesh, with vertices that use the z-parameter. use position & col
 
 /*
 thought: 
-every enclosed body is a mesh, with vertices inside. shape is affected by the topology. 
 
-an enclosed body can be thought of as a group of similar colours. 
 */
 
 let cam;
 
-let mesh_points = [];
+let pixelation = 10;
 
-let gap = 10;
+let similarity_threshold = 50;
 
 function setup() {
   cam = createCapture(VIDEO, { flipped: true }, make_canvas);
+  pixelDensity(1);
   cam.hide();
 }
 
 //make canvas the same size as camera for easier calculations.
 function make_canvas() {
   createCanvas(cam.width, cam.height, WEBGL);
-
-  // make a mesh of points.
-  for (let x = 0; x <= width * 2; x += gap) {
-    for (let y = 0; y <= height; y += gap) {
-      mesh_points.push(new MeshPoint(x, y));
-    }
-  }
 }
 
 function draw() {
   background(0);
+
+  push();
   translate(-width / 2, -height / 2);
-
-  get_color();
+  //webgl renders canvas from the center of the screen; so.
   image(cam, 0, 0, width, height);
+  pop();
 
-  for (let mesh_point of mesh_points) {
-    mesh_point.display();
-    mesh_point.clump();
-  }
+  make_groups();
+
+  console.log(get_neighbours(0, 0));
 }
 
-function get_color() {
+//this function will read all colour values, cluster similar colours together into a group.
+// this'll be in an array groups[n][e], where [n] is the number of groups, and [e] is the number of pixels it has clustered together.
+
+let groups;
+
+function make_groups() {
   cam.loadPixels();
-  //returns a cam.pixels 1-d array with rgba values.
+  //^ returns a cam.pixels array with rgba information.
 
-  /*
-the algorithm: 
-- go through all the mesh-points, get assigned the colour of what they actually are as per video input. 
-- for the joining, we look at similarity. 
-  */
+  // go through every single pixel and compare its colour value with its neighbour.
 
-  for (let i = 0; i < mesh_points.length; i++) {
-    let n = get_pixel_index(mesh_points[i].x, mesh_points[i].y);
+  let group_numbers = 0;
 
-    mesh_points[i].r = cam.pixels[n];
-    mesh_points[i].g = cam.pixels[n + 1];
-    mesh_points[i].b = cam.pixels[n + 2];
-  }
+  for (let x = 0; x < cam.width; x += pixelation) {
+    for (let y = 0; y < cam.height; y += pixelation) {
 
-  // now we go through all the mesh points, and compare the colour values to their neighbour.
+      let neighbours = get_neighbours(x, y);
 
-  for (let i = 0; i<mesh_points.length; i++){
-    let neighbours = get_neighbours(mesh_points[i]); 
+      let n = get_pixel_index(x, y);
+
+      //study calculations. we study hue.
+      let studied_rgba = color(cam.pixels[n], cam.pixels[n + 1], cam.pixels[n + 2], cam.pixels[n + 3]);
+      let studied_hue = Math.floor(hue(studied_rgba));
+
+      //now we compare it to every neighbour.
+      for (let i = 0; i < neighbours.length; i++) {
+        // see if it has been grouped previously or not. 
+        
+        let neighbour_rgba = color(cam.pixels[i], cam.pixels[i + 1], cam.pixels[i + 2], cam.pixels[i + 3]);
+        let studied_hue = Math.floor(hue(neighbour_rgba));
+
+        if (neighbour_hue >= studied_hue - similarity_threshold && neighbour_hue <= studied_hue + similarity_threshold) {
+          //this is a valid colour to be grouped.
+        } else {
+          continue;
+        }
+      }
+    }
   }
 }
 
-function get_neighbours(p){
-  let x = mesh_points[n].x; 
-  let y = mesh_points[n].x; 
+//helper written by an llm to fetch neighbours for a given pixel, taking in mind the pixelation value.
+function get_neighbours(x, y) {
+  let neighbours = [];
 
-  const possible_neighbours = [
-        [x - gap, y - gap], // top-left
-        [x, y - gap], // top
-        [x + gap, y - gap], // top-right
-        [x - gap, y], // left
-        [x + gap, y], // right
-        [x - gap, y + gap], // bottom-left
-        [x, y + gap], // bottom
-        [x + gap, y + gap], // bottom-right
-  ];
+  // Check all 8 surrounding positions (or fewer at edges)
+  for (let dx = -pixelation; dx <= pixelation; dx += pixelation) {
+    for (let dy = -pixelation; dy <= pixelation; dy += pixelation) {
+      // Skip the center pixel itself
+      if (dx === 0 && dy === 0) continue;
+
+      let nx = x + dx;
+      let ny = y + dy;
+
+      // Check bounds
+      if (nx >= 0 && nx < cam.width && ny >= 0 && ny < cam.height) {
+        let index = get_pixel_index(nx, ny);
+        neighbours.push(index); // just return the index of the neighbours.
+        //     {
+        //   x: nx,
+        //   y: ny,
+        //   index: index,
+        //   color: {
+        //     r: cam.pixels[index],
+        //     g: cam.pixels[index + 1],
+        //     b: cam.pixels[index + 2],
+        //     a: cam.pixels[index + 3],
+        //   },
+        // });
+      }
+    }
+  }
+
+  return neighbours;
 }
 
 //helper to convert x,y coordinates to pixels index.
 function get_pixel_index(x, y) {
   return (y * cam.width + x) * 4;
-}
-
-// function get_neighbours(x, y) {
-//   let neighbours = [];
-//   const possible_neighbours = [
-//     [x - 1, y - 1], // top-left
-//     [x, y - 1], // top
-//     [x + 1, y - 1], // top-right
-
-//     [x - 1, y], // left
-//     [x + 1, y], // right
-
-//     [x - 1, y + 1], // bottom-left
-//     [x, y + 1], // bottom
-//     [x + 1, y + 1], // bottom-right
-//   ];
-
-//   for (const [dx, dy] of possible_neighbours) {
-//     if (dx >= 0 && dx < cam.width && dy >= 0 && dy < cam.height) {
-//       neighbours.push(get_pixel_index(dx, dy));
-//     }
-//   }
-
-//   return neighbours;
-// }
-
-class MeshPoint {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-
-    this.r = 255;
-    this.g = 255;
-    this.b = 255;
-    // this.a = 100;
-  }
-
-  display() {
-    beginShape(POINTS);
-    stroke(this.r, this.g, this.b);
-    strokeWeight(gap);
-    vertex(this.x, this.y);
-
-    endShape();
-  }
 }
