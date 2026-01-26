@@ -28,7 +28,7 @@ function make_canvas() {
 }
 
 function draw() {
-    background (255); 
+    // background (255); 
 
   //for testing video feed. 
     push();
@@ -125,6 +125,7 @@ function draw_groups() {
 
   //coloring stuff; remains global across meshes:
   colorMode(RGB, 255);
+  noStroke(); 
 
   // we want to draw a mesh for every single group.
   for (let n = 0; n < groups.length; n++) {
@@ -152,8 +153,9 @@ function draw_groups() {
         let g = cam.pixels[index + 1];
         let b = cam.pixels[index + 2];
 
-        fill(r, g, b);
-        stroke(r, g, b);
+        stroke (r,g,b,255); 
+        strokeWeight (20); 
+        fill(r, g, b, 50);
 
         vertex(x, y, 0);
       }
@@ -177,8 +179,9 @@ function draw_groups() {
 
         let z = map(n, 0, max_group_length, min_z_depth, max_z_depth);
 
-        fill(r, g, b);
-        stroke(r, g, b);
+        stroke(r, g, b, 255);
+        strokeWeight(20); 
+        fill(r, g, b, 50);
 
         vertex(x, y, 0);
       }
