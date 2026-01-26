@@ -1,4 +1,6 @@
-//untitled; arjun; month, 2026.
+// all the world's a mesh, and i'm just in it.
+
+// arjun; month, 2026.
 
 /*
 ask: 
@@ -7,7 +9,9 @@ make a reactive mesh, with vertices that use the z-parameter. use position & col
 
 /*
 thought: 
+every enclosed body is a mesh, with vertices inside. shape is affected by the topology. 
 
+an enclosed body can be thought of as a group of similar colours. 
 */
 
 let cam;
@@ -18,6 +22,8 @@ let similarity_threshold = 1;
 
 function setup() {
   cam = createCapture(VIDEO, { flipped: true }, make_canvas);
+
+  //set default pixel density to 1, since i'm working with pixels.
   pixelDensity(1);
   cam.hide();
 }
@@ -28,25 +34,29 @@ function make_canvas() {
 }
 
 function draw() {
-    // background (255); 
+  //include background to show working of the algorithm.
+  // background (255);
 
-  //for testing video feed. 
-    push();
-    translate(-width / 2, -height / 2);
-    //webgl renders canvas from the center of the screen; so.
+  //for testing video feed.
+  //   push();
+  //   //webgl renders canvas from the center of the screen; so.
+  //   translate(-width / 2, -height / 2);
+  //   tint (100, 50);
+  //   image(cam, 0, 0, width, height);
+  //   pop();
 
-    // tint (100, 50); 
-    // image(cam, 0, 0, width, height);
-    pop();
+  make_groups();
 
-  if (frameCount % 1 == 0) {
-    make_groups();
-  }
-  tint(255, 255); 
+  //   tint(255, 255); //don't need this right now.
+
+  // since webgl draws from the center of the screen, i do one mega transformation to draw from 0,0.
+  push();
+  translate(-width / 2, -height / 2);
   draw_groups();
+  pop();
 }
 
-//this function will read all colour values, cluster similar colours together into a group.
+//this function will read all colour values, and luster similar colours together into a group.
 
 // we keep two variables:
 let groups = []; //stores data in the format: groups[id][indices], where id increments sequentially, and indices is a list of all cam.pixels indices that belong to the group.
@@ -116,16 +126,11 @@ function make_groups() {
   }
 }
 
-//this one tries to take some dynamic decisions to make either a triangle or triangle strip topology.
+//this function will make some dynamic decisions to make either a triangle or triangle-strip topology.
 function draw_groups() {
-  push();
-
-  // since webgl draws from the center of the screen:
-  translate(-width / 2, -height / 2);
-
   //coloring stuff; remains global across meshes:
   colorMode(RGB, 255);
-  noStroke(); 
+  noStroke();
 
   // we want to draw a mesh for every single group.
   for (let n = 0; n < groups.length; n++) {
@@ -133,16 +138,17 @@ function draw_groups() {
 
     // z transformations:
     let max_group_length = Math.max(...groups.map((g) => g.length));
-    const max_z_depth = 50;
-    const min_z_depth = -50;
+    const max_z_depth = 100;
+    const min_z_depth = -100;
+
+    // we do one transformation for all shapes that are drawn.
+    push();
+    let z = map(groups[n].length, 3, max_group_length, min_z_depth, max_z_depth);
+    translate(0, 0, z);
 
     // now we decide the topology.
-
-    //if it is divisible by 3, we form a triangle-strip.
+    //if it is divisible by 3, we form triangles. else we make a triangle strip.
     if (groups[n].length % 3 === 0) {
-      push();
-      let z = map(groups[n].length, 3, max_group_length, min_z_depth, max_z_depth);
-      translate(0, 0, z);
       beginShape(TRIANGLES);
 
       for (let i = 0; i < groups[n].length; i++) {
@@ -153,20 +159,15 @@ function draw_groups() {
         let g = cam.pixels[index + 1];
         let b = cam.pixels[index + 2];
 
-        // stroke (r,g,b,255); 
-        // strokeWeight (20); 
+        // stroke (r,g,b,255);
+        // strokeWeight (20);
         fill(r, g, b, 50);
 
         vertex(x, y, 0);
       }
 
       endShape();
-
-      pop();
     } else {
-      push();
-      let z = map(groups[n].length, 0, max_group_length, min_z_depth, max_z_depth);
-      translate(0, 0, z);
       beginShape(TRIANGLE_STRIP);
 
       for (let i = 0; i < groups[n].length; i++) {
@@ -177,21 +178,16 @@ function draw_groups() {
         let g = cam.pixels[index + 1];
         let b = cam.pixels[index + 2];
 
-        let z = map(n, 0, max_group_length, min_z_depth, max_z_depth);
-
         // stroke(r, g, b, 255);
-        // strokeWeight(20); 
+        // strokeWeight(20);
         fill(r, g, b, 50);
 
         vertex(x, y, 0);
       }
-
       endShape();
-      pop();
     }
+    pop();
   }
-
-  pop();
 }
 
 // // this one just draws triangle-strip meshes.
