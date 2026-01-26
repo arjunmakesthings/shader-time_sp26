@@ -153,8 +153,8 @@ function draw_groups() {
         let g = cam.pixels[index + 1];
         let b = cam.pixels[index + 2];
 
-        stroke (r,g,b,255); 
-        strokeWeight (20); 
+        // stroke (r,g,b,255); 
+        // strokeWeight (20); 
         fill(r, g, b, 50);
 
         vertex(x, y, 0);
@@ -179,8 +179,8 @@ function draw_groups() {
 
         let z = map(n, 0, max_group_length, min_z_depth, max_z_depth);
 
-        stroke(r, g, b, 255);
-        strokeWeight(20); 
+        // stroke(r, g, b, 255);
+        // strokeWeight(20); 
         fill(r, g, b, 50);
 
         vertex(x, y, 0);
