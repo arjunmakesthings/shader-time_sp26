@@ -14,7 +14,7 @@ let cam;
 
 let pixelation = 5;
 
-let similarity_threshold = 10;
+let similarity_threshold = 1;
 
 function setup() {
   cam = createCapture(VIDEO, { flipped: true }, make_canvas);
@@ -28,18 +28,21 @@ function make_canvas() {
 }
 
 function draw() {
-  background(0);
+    background (255); 
 
-  //   push();
-  //   translate(-width / 2, -height / 2);
-  //   //webgl renders canvas from the center of the screen; so.
-  //   image(cam, 0, 0, width, height);
-  //   pop();
+  //for testing video feed. 
+    push();
+    translate(-width / 2, -height / 2);
+    //webgl renders canvas from the center of the screen; so.
+
+    // tint (100, 50); 
+    // image(cam, 0, 0, width, height);
+    pop();
 
   if (frameCount % 1 == 0) {
     make_groups();
   }
-
+  tint(255, 255); 
   draw_groups();
 }
 
@@ -129,13 +132,16 @@ function draw_groups() {
 
     // z transformations:
     let max_group_length = Math.max(...groups.map((g) => g.length));
-    const max_z_depth = 100;
-    const min_z_depth = 0;
+    const max_z_depth = 50;
+    const min_z_depth = -50;
 
     // now we decide the topology.
 
     //if it is divisible by 3, we form a triangle-strip.
     if (groups[n].length % 3 === 0) {
+      push();
+      let z = map(groups[n].length, 3, max_group_length, min_z_depth, max_z_depth);
+      translate(0, 0, z);
       beginShape(TRIANGLES);
 
       for (let i = 0; i < groups[n].length; i++) {
@@ -146,16 +152,19 @@ function draw_groups() {
         let g = cam.pixels[index + 1];
         let b = cam.pixels[index + 2];
 
-        let z = map(n, 0, max_group_length, min_z_depth, max_z_depth);
-
         fill(r, g, b);
         stroke(r, g, b);
 
-        vertex(x, y, z);
+        vertex(x, y, 0);
       }
 
       endShape();
+
+      pop();
     } else {
+      push();
+      let z = map(groups[n].length, 0, max_group_length, min_z_depth, max_z_depth);
+      translate(0, 0, z);
       beginShape(TRIANGLE_STRIP);
 
       for (let i = 0; i < groups[n].length; i++) {
@@ -171,10 +180,11 @@ function draw_groups() {
         fill(r, g, b);
         stroke(r, g, b);
 
-        vertex(x, y, z);
+        vertex(x, y, 0);
       }
 
       endShape();
+      pop();
     }
   }
 
