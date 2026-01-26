@@ -28,7 +28,7 @@ function make_canvas() {
 }
 
 function draw() {
-    background(0);
+  background(0);
 
   //   push();
   //   translate(-width / 2, -height / 2);
@@ -120,16 +120,19 @@ function draw_groups() {
   // since webgl draws from the center of the screen:
   translate(-width / 2, -height / 2);
 
+  //coloring stuff; remains global across meshes:
   colorMode(RGB, 255);
-  noFill();
 
   // we want to draw a mesh for every single group.
   for (let n = 0; n < groups.length; n++) {
     if (groups[n].length < 3) continue; //skip these groups, because they're too small to be a mesh.
 
+    // z transformations:
+    let max_group_length = Math.max(...groups.map((g) => g.length));
+    const max_z_depth = 100;
+    const min_z_depth = 0;
+
     // now we decide the topology.
-    //i will map z to the number of elements each group has: 
-    let max_group_length = Math.max(...groups.map(g => g.length));
 
     //if it is divisible by 3, we form a triangle-strip.
     if (groups[n].length % 3 === 0) {
@@ -139,27 +142,15 @@ function draw_groups() {
         let index = groups[n][i];
         let { x, y } = index_to_xy(index);
 
-        // z keeps shifting.
-
         let r = cam.pixels[index];
         let g = cam.pixels[index + 1];
         let b = cam.pixels[index + 2];
 
-        // const z_depth = width;
+        let z = map(n, 0, max_group_length, min_z_depth, max_z_depth);
 
-        // let t = frameCount * 0.0005;
-        // let z = map(noise(i * 0.1, t), 0, 1, 0, z_depth);
+        fill(r, g, b);
+        stroke(r, g, b);
 
-        const max_z_depth = max(width, height); 
-
-        let z = map(groups[n].length, 3,max_group_length, -max_z_depth, max_z_depth); 
-
-        // stroke(r, g, b);
-        // strokeWeight(pixelation);
-        // point(x, y, 1);
-
-        noStroke();
-        fill (r,g,b);
         vertex(x, y, z);
       }
 
@@ -175,17 +166,11 @@ function draw_groups() {
         let g = cam.pixels[index + 1];
         let b = cam.pixels[index + 2];
 
-        // const z_depth = width;
+        let z = map(n, 0, max_group_length, min_z_depth, max_z_depth);
 
-        // let t = frameCount * 0.0005;
-        // let z = map(noise(i * 0.01, t), 0, 1, 0, z_depth);
-
-        const max_z_depth = max(width, height);
-
-        let z = map(groups[n].length, 3, max_group_length, -max_z_depth, max_z_depth); 
-
-        noStroke();
         fill(r, g, b);
+        stroke(r, g, b);
+
         vertex(x, y, z);
       }
 
@@ -196,7 +181,7 @@ function draw_groups() {
   pop();
 }
 
-// // this one just draws triangle-strip meshes. 
+// // this one just draws triangle-strip meshes.
 // function draw_groups() {
 //   push();
 //   // since webgl draws from the center of the screen:
@@ -266,6 +251,7 @@ function index_to_xy(index) {
   return { x, y };
 }
 
-function mousePressed() {
-  noLoop();
-}
+//for debugging:
+// function mousePressed() {
+//   noLoop();
+// }
