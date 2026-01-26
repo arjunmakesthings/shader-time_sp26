@@ -12,9 +12,9 @@ thought:
 
 let cam;
 
-let pixelation = 10;
+let pixelation = 3;
 
-let similarity_threshold = 50;
+let similarity_threshold = 10;
 
 function setup() {
   cam = createCapture(VIDEO, { flipped: true }, make_canvas);
@@ -28,25 +28,27 @@ function make_canvas() {
 }
 
 function draw() {
-  background(0);
+    background(0);
 
-//   push();
-//   translate(-width / 2, -height / 2);
-//   //webgl renders canvas from the center of the screen; so.
-//   image(cam, 0, 0, width, height);
-//   pop();
+  //   push();
+  //   translate(-width / 2, -height / 2);
+  //   //webgl renders canvas from the center of the screen; so.
+  //   image(cam, 0, 0, width, height);
+  //   pop();
 
-  make_groups();
+  if (frameCount % 1 == 0) {
+    make_groups();
+  }
 
   draw_groups();
 }
 
 //this function will read all colour values, cluster similar colours together into a group.
 
-// we keep two variables: 
-let groups; //stores data in the format: groups[id][indices], where id increments sequentially, and indices is a list of all cam.pixels indices that belong to the group. 
+// we keep two variables:
+let groups = []; //stores data in the format: groups[id][indices], where id increments sequentially, and indices is a list of all cam.pixels indices that belong to the group.
 
-let pixel_to_group;//this stores data in this format: studied_index: groupid. we use this to check if the pixel being studied has been grouped or not. 
+let pixel_to_group; //this stores data in this format: studied_index: groupid. we use this to check if the pixel being studied has been grouped or not.
 
 function make_groups() {
   cam.loadPixels();
@@ -77,20 +79,22 @@ function make_groups() {
       for (let i = 0; i < neighbours.length; i++) {
         let neighbour_index = neighbours[i];
 
-        // first see if the neighbour being studied has been already sent to a group or not. 
+        // we see if the neighbour has been grouped before. if not, we skip through this neighbour business, so that the current pixel can get its own group.
         if (pixel_to_group[neighbour_index] === undefined) {
           continue;
         }
 
-        let neighbour_rgba = color(cam.pixels[neighbour_index], cam.pixels[neighbour_index + 1], cam.pixels[neighbour_index + 2], cam.pixels[neighbour_index + 3]);
+        // a group near the neighbour being studied exists, which means we can group it to that group.
 
+        //get its colour. we compare hue.
+        let neighbour_rgba = color(cam.pixels[neighbour_index], cam.pixels[neighbour_index + 1], cam.pixels[neighbour_index + 2], cam.pixels[neighbour_index + 3]);
         let neighbour_hue = Math.floor(hue(neighbour_rgba));
 
-        // study calculations. we study hue.
+        // we use abs to get rid of writing if > and if <. abs maps it to a number line.
         if (abs(neighbour_hue - studied_hue) < similarity_threshold) {
           // this is a valid colour to be grouped.
           found_group = pixel_to_group[neighbour_index];
-          break; // first valid group is enough
+          break;
         }
       }
 
@@ -100,45 +104,119 @@ function make_groups() {
         groups.push([studied_index]);
         pixel_to_group[studied_index] = new_group_id;
       }
-      // otherwise, add this pixel to the existing group
+      // otherwise, add this pixel to an existing group, if found.
       else {
         groups[found_group].push(studied_index);
         pixel_to_group[studied_index] = found_group;
       }
     }
   }
-
-  console.log (groups, pixel_to_group); 
 }
+
+//this one tries to take some dynamic decisions to make either a triangle or triangle strip topology.
+// function draw_groups() {
+//   push();
+
+//   // since webgl draws from the center of the screen:
+//   translate(-width / 2, -height / 2);
+
+//   colorMode(RGB, 255);
+//   noFill();
+
+//   // we want to draw a mesh for every single group.
+//   for (let n = 0; n < groups.length; n++) {
+//     if (groups[n].length < 3) continue; //skip these groups, because they're too small to be a mesh.
+
+//     // now we decide the topology.
+
+//     //if it is divisible by 3, we form a triangle-strip.
+//     if (groups[n].length % 3 === 0) {
+//       beginShape(TRIANGLES);
+
+//       for (let i = 0; i < groups[n].length; i++) {
+//         let index = groups[n][i];
+//         let { x, y } = index_to_xy(index);
+
+//         // z keeps shifting.
+
+//         let r = cam.pixels[index];
+//         let g = cam.pixels[index + 1];
+//         let b = cam.pixels[index + 2];
+
+//         let osci = sin(frameCount * 0.05);
+
+//         const z_depth = width;
+
+//         let t = frameCount * 0.0005;
+//         let z = map(noise(i * 0.1, t), 0, 1, 0, z_depth);
+
+//         // stroke(r, g, b);
+//         // strokeWeight(pixelation);
+//         // point(x, y, 1);
+
+//         noStroke();
+//         fill (r,g,b);
+//         vertex(x, y, z);
+//       }
+
+//       endShape();
+//     } else {
+//       beginShape(TRIANGLE_STRIP);
+
+//       for (let i = 0; i < groups[n].length; i++) {
+//         let index = groups[n][i];
+//         let { x, y } = index_to_xy(index);
+
+//         let r = cam.pixels[index];
+//         let g = cam.pixels[index + 1];
+//         let b = cam.pixels[index + 2];
+
+//         const z_depth = width;
+
+//         let t = frameCount * 0.0005;
+//         let z = map(noise(i * 0.01, t), 0, 1, 0, z_depth);
+
+//         noStroke();
+//         fill(r, g, b);
+//         vertex(x, y, z);
+//       }
+
+//       endShape();
+//     }
+//   }
+
+//   pop();
+// }
 
 function draw_groups() {
   push();
-
-  // WEBGL canvas is centered; match image space
+  // since webgl draws from the center of the screen:
   translate(-width / 2, -height / 2);
-
-  noStroke();
   colorMode(RGB, 255);
-
-  for (let g = 0; g < groups.length; g++) {
-    for (let i = 0; i < groups[g].length; i++) {
-      let index = groups[g][i];
+  noFill();
+  // we want to draw a mesh for every single group.
+  for (let n = 0; n < groups.length; n++) {
+    if (groups[n].length < 4) continue; //skip these groups, because they're too small to be a mesh.
+    beginShape(TRIANGLE_STRIP);
+    for (let i = 0; i < groups[n].length; i++) {
+      let index = groups[n][i];
       let { x, y } = index_to_xy(index);
-
       let r = cam.pixels[index];
-      let g_ = cam.pixels[index + 1];
+      let g = cam.pixels[index + 1];
       let b = cam.pixels[index + 2];
-      let a = cam.pixels[index + 3];
 
-      fill(r, g_, b, a);
-      circle(x, y, pixelation * 0.8);
+      let z = 0;
+
+      // stroke(r, g, b);
+      // strokeWeight(pixelation);
+      // point(x, y, 1);
+      noStroke();
+      fill(r, g, b);
+      vertex(x, y, z);
     }
+    endShape();
   }
-
-  pop();
 }
-  
-
 
 /* helpers: */
 
@@ -190,6 +268,6 @@ function index_to_xy(index) {
   return { x, y };
 }
 
-function mousePressed(){
-    noLoop(); 
+function mousePressed() {
+  noLoop();
 }
