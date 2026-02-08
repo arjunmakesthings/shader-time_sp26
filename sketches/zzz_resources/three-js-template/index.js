@@ -2,7 +2,7 @@
 
 //by elie.
 
-import * as THREE from "../../../../../assets/libraries/three-js/build/three.module.js";
+import * as THREE from "https://unpkg.com/three@0.154.0/build/three.module.js";
 
 // Create renderer.
 const canvas = document.querySelector("#canvas");
