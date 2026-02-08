@@ -36,7 +36,7 @@ float noise(in vec2 st) {
 void main() {
     vec2 col = v_pos.xy / u_res;
 
-    float time_osc = sin(u_time)*0.0005; 
+    float time_osc = sin(u_time)*0.0004; 
 
     float r = noise(col ); // noise expects vec2
     float g = noise(col + time_osc);

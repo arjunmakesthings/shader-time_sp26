@@ -51,7 +51,7 @@ void main() {
   //since p5 sets the origin to the center, we do this to avoid offsetting the drawing.
   position.xy -= u_res * 0.5;
 
-  position.xy *= tan(noise(position.xy * 0.005 + sin(u_time * 0.0009)))+0.02;
+  position.xy *= tan(noise(position.xy * 0.005 + sin(u_time * 0.0005)))+0.02;
 
   // position.xy *= tan(noise(vec2(aPosition.x * u_res.x, aPosition.y*u_res.y) * 0.005 + sin(u_time * 0.0009))) - 0.1;
 
