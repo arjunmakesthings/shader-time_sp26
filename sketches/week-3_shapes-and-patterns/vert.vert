@@ -51,11 +51,11 @@ void main() {
   //since p5 sets the origin to the center, we do this to avoid offsetting the drawing.
   position.xy -= u_res * 0.5;
 
-  position.xy *= tan(noise(position.xy * 0.005 + sin(u_time * 0.0005)))+0.02;
+  position.xy *= tan(noise(position.xy * 0.005 + sin(u_time * 0.0005))) + 0.02;
 
   // position.xy *= tan(noise(vec2(aPosition.x * u_res.x, aPosition.y*u_res.y) * 0.005 + sin(u_time * 0.0009))) - 0.1;
 
-  position.y+=60.0; 
+  position.y += 60.0; 
 
   //transforms vertex position from model to screen space. we let this be as is. this tells the gpu where to draw the vertex.
   gl_Position = uProjectionMatrix * uModelViewMatrix * position;
