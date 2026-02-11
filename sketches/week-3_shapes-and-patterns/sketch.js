@@ -67,10 +67,11 @@ function calc_posis() {
       // posis.push(x, y, x, - y);
     }
   }
+  background(0);
 }
 
 function draw() {
-  background(0);
+  background(0, 100);
 
   shader(my_shader); //set the shader.
 
