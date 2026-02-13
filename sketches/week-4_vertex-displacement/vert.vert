@@ -8,8 +8,10 @@ attribute vec2 uv;
 varying vec2 vUv;
 
 void main() {
-    vec4 modelPos = vec4(position, 1.0);
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * modelPos;
+
+    //comes as a vec3; convert to vec4, by adding 1.0: 
+    vec4 model_position = vec4(position, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * model_position;
 
     vUv = uv;
 }
