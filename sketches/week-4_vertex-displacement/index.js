@@ -15,7 +15,7 @@ scene.background = new THREE.Color(0x292f33);
 
 // Create camera.
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
-camera.position.z = 1;
+camera.position.z = 5;
 scene.add(camera);
 
 // load shaders, but as text files. the browser automatically converts them to javascript modules.
@@ -37,13 +37,31 @@ const boxMat = new THREE.RawShaderMaterial({
   //uniforms:
   uniforms: {
     u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+    u_time: { value: 0.0 }, // initialize
   },
 });
 const boxMesh = new THREE.Mesh(rectGeo, boxMat);
-scene.add(boxMesh);
+// scene.add(boxMesh);
+
+const sun_geo = new THREE.SphereGeometry(2.0); //render sphere with radius r; default details.
+const sun_mat = new THREE.RawShaderMaterial({
+  vertexShader: vert_shader,
+  fragmentShader: frag_shader,
+
+  //uniforms:
+  uniforms: {
+    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+    u_time: { value: 0.0 }, // initialize
+  },
+});
+const sun_mesh = new THREE.Mesh(sun_geo, sun_mat);
+scene.add(sun_mesh);
+
+const clock = new THREE.Clock(); // tracks elapsed time
 
 // Animation loop.
 const tick = () => {
+  sun_mat.uniforms.u_time.value = clock.getElapsedTime(); // in seconds
   renderer.render(scene, camera);
 
   requestAnimationFrame(tick);
