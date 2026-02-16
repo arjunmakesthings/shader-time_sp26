@@ -63,10 +63,10 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
 
-  // Update geometry on resize
-  const newAspect = w / h;
-  rectGeo.dispose();
-  boxMesh.geometry = new THREE.PlaneGeometry(2 * newAspect, 2);
+  // // Update geometry on resize
+  // const newAspect = w / h;
+  // rectGeo.dispose();
+  // boxMesh.geometry = new THREE.PlaneGeometry(2 * newAspect, 2);
 
-  boxMat.uniforms.u_resolution.value.set(w, h);
+  // boxMat.uniforms.u_resolution.value.set(w, h);
 });
