@@ -6,5 +6,6 @@ uniform vec2 u_resolution;
 uniform float u_time;
 
 void main() {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    vec2 posis = gl_FragCoord.xy / u_resolution;
+    gl_FragColor = vec4(posis.x, 0.0, 0.0, 1.0);
 }

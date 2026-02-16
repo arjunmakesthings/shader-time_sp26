@@ -31,7 +31,12 @@ const frag_shader = await loadShader("./frag.frag");
 const aspect = window.innerWidth / window.innerHeight;
 
 //load geometry, material, mesh + add to scene.
-const box_geo = new THREE.BoxGeometry(1, 1, 1); //segments are set to 1,1,1.
+
+const seg = 100; 
+
+const box_geo = new THREE.BoxGeometry(1, 1, 1, seg,seg,seg); //segments are set to 1,1,1.
+//syntax: new BoxGeometry( width : number, height : number, depth : number, widthSegments : number, heightSegments : number, depthSegments : number )
+
 const box_mat = new THREE.RawShaderMaterial({
   vertexShader: vert_shader,
   fragmentShader: frag_shader,
@@ -49,6 +54,7 @@ const clock = new THREE.Clock(); // tracks elapsed time
 
 //animation loop:
 const tick = () => {
+  box_mat.uniforms.u_time.value = clock.getElapsedTime();
   renderer.render(scene, camera);
 
   requestAnimationFrame(tick);
