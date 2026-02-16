@@ -11,11 +11,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Create scene.
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x292f33);
+scene.background = new THREE.Color(255, 255, 255); //rendered as rgb.
 
 // Create camera.
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
-camera.position.z = 5;
+camera.position.z = 3;
 scene.add(camera);
 
 // load shaders, but as text files. the browser automatically converts them to javascript modules.
@@ -29,46 +29,33 @@ const frag_shader = await loadShader("./frag.frag");
 
 //--
 const aspect = window.innerWidth / window.innerHeight;
-const rectGeo = new THREE.PlaneGeometry(2 * aspect, 2); // width, height
-const boxMat = new THREE.RawShaderMaterial({
+
+//load geometry, material, mesh + add to scene.
+const box_geo = new THREE.BoxGeometry(1, 1, 1); //segments are set to 1,1,1.
+const box_mat = new THREE.RawShaderMaterial({
   vertexShader: vert_shader,
   fragmentShader: frag_shader,
 
   //uniforms:
   uniforms: {
     u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-    u_time: { value: 0.0 }, // initialize
+    u_time: { value: 0.0 }, // initialize with 0.
   },
 });
-const boxMesh = new THREE.Mesh(rectGeo, boxMat);
-// scene.add(boxMesh);
-
-const sun_geo = new THREE.SphereGeometry(2.0); //render sphere with radius r; default details.
-const sun_mat = new THREE.RawShaderMaterial({
-  vertexShader: vert_shader,
-  fragmentShader: frag_shader,
-
-  //uniforms:
-  uniforms: {
-    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-    u_time: { value: 0.0 }, // initialize
-  },
-});
-const sun_mesh = new THREE.Mesh(sun_geo, sun_mat);
-scene.add(sun_mesh);
+const box_mesh = new THREE.Mesh(box_geo, box_mat);
+scene.add(box_mesh);
 
 const clock = new THREE.Clock(); // tracks elapsed time
 
-// Animation loop.
+//animation loop:
 const tick = () => {
-  sun_mat.uniforms.u_time.value = clock.getElapsedTime(); // in seconds
   renderer.render(scene, camera);
 
   requestAnimationFrame(tick);
 };
 tick();
 
-// Window resize listener.
+//for resizing:
 window.addEventListener("resize", () => {
   const w = window.innerWidth;
   const h = window.innerHeight;
