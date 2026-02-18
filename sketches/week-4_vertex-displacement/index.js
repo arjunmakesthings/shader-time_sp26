@@ -3,6 +3,7 @@
 // three-js template by elie.
 
 import * as THREE from "https://unpkg.com/three@0.154.0/build/three.module.js";
+//this could just be three.js file. 
 
 import GUI from "https://cdn.jsdelivr.net/npm/lil-gui@0.18.1/dist/lil-gui.esm.min.js";
 
@@ -32,8 +33,9 @@ async function loadShader(url) {
   return await res.text();
 }
 
-const vert_shader = await loadShader("./vert.vert");
 const frag_shader = await loadShader("./frag.frag");
+
+const vert_shader = await loadShader ("./vert.vert"); 
 
 //--
 const aspect = window.innerWidth / window.innerHeight;
@@ -46,6 +48,8 @@ const box_geo = new THREE.BoxGeometry(1, 1, 1, segments, segments, segments); //
 const box_mat = new THREE.RawShaderMaterial({
   vertexShader: vert_shader,
   fragmentShader: frag_shader,
+
+  wireframe:true, 
 
   //uniforms:
   uniforms: {
