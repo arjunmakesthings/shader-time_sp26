@@ -32,7 +32,7 @@ const aspect = window.innerWidth / window.innerHeight;
 
 //load geometry, material, mesh + add to scene.
 
-const seg = 100; 
+const seg = 1000; 
 
 const box_geo = new THREE.BoxGeometry(1, 1, 1, seg,seg,seg); //segments are set to 1,1,1.
 //syntax: new BoxGeometry( width : number, height : number, depth : number, widthSegments : number, heightSegments : number, depthSegments : number )
