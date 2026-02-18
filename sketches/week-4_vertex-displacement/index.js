@@ -4,6 +4,14 @@
 
 import * as THREE from "https://unpkg.com/three@0.154.0/build/three.module.js";
 
+import GUI from "https://cdn.jsdelivr.net/npm/lil-gui@0.18.1/dist/lil-gui.esm.min.js";
+
+const gui = new GUI();
+
+let segments = 10;
+let rot_speed = 0.5; 
+let jitter = 0.022; 
+
 // Create renderer.
 const canvas = document.querySelector("#canvas");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -32,9 +40,7 @@ const aspect = window.innerWidth / window.innerHeight;
 
 //load geometry, material, mesh + add to scene.
 
-const seg = 1000; 
-
-const box_geo = new THREE.BoxGeometry(1, 1, 1, seg,seg,seg); //segments are set to 1,1,1.
+const box_geo = new THREE.BoxGeometry(1, 1, 1, segments, segments, segments); //segments are set to 1,1,1.
 //syntax: new BoxGeometry( width : number, height : number, depth : number, widthSegments : number, heightSegments : number, depthSegments : number )
 
 const box_mat = new THREE.RawShaderMaterial({
@@ -45,6 +51,8 @@ const box_mat = new THREE.RawShaderMaterial({
   uniforms: {
     u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
     u_time: { value: 0.0 }, // initialize with 0.
+    rot_speed: {},
+    jitter: {}, 
   },
 });
 const box_mesh = new THREE.Mesh(box_geo, box_mat);
@@ -55,11 +63,28 @@ const clock = new THREE.Clock(); // tracks elapsed time
 //animation loop:
 const tick = () => {
   box_mat.uniforms.u_time.value = clock.getElapsedTime();
+  box_mat.uniforms.rot_speed.value = rot_speed; 
+  box_mat.uniforms.jitter.value = jitter; 
+
   renderer.render(scene, camera);
 
   requestAnimationFrame(tick);
 };
 tick();
+
+gui.add({ segments }, "segments", 1, 200, 1).onChange((value) => {
+  segments = value;
+  box_mesh.geometry.dispose();
+  box_mesh.geometry = new THREE.BoxGeometry(1, 1, 1, segments, segments, segments); //if a person changes segments, the whole geometry has to be redrawn.
+});
+
+gui.add({ rot_speed }, "rot_speed", 0.0001, 5.0, 0.01).onChange((value) => {
+  rot_speed = value;
+});
+
+gui.add({ jitter }, "jitter", 0.001, 0.5, 0.001).onChange((value) => {
+  jitter = value;
+});
 
 //for resizing:
 window.addEventListener("resize", () => {

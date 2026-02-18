@@ -14,6 +14,9 @@ varying vec2 vUv;
 
 attribute vec3 normal;
 
+uniform float rot_speed; 
+uniform float jitter; 
+
 //helper from stackoverflow to generate a random number between 0,1.
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -44,13 +47,15 @@ void main() {
 
     vec3 got_posis = position;
 
-    float prob = noise(position.xy);
+    // float prob = noise(position.xy);
+    float prob = random(position.xy);
+
     //prob returns a float between 0,1. 
 
     // a vertex can move in 1 of 3 axes combinations: xy yz xz. 
 
     //it can move by this number: 
-    float step = noise(vec2(u_time))*0.003;
+    float step = noise(vec2(u_time)) * jitter;
 
     if(prob < 0.3) {
         //xy. 
@@ -118,41 +123,36 @@ void main() {
         }
     }
 
-    // float r = one_d_noise(u_time)*5.5;
+//     vec3 axis = normalize(normal * 1.6 * normalize(position));
 
-    float r = u_time;
-    float cx = cos(r * one_d_noise(got_posis.x));
-    float sx = sin(r * one_d_noise(got_posis.x));
+// // Add subtle spatial variation
+//     float spatial = noise(normal.xz * 5.0);
 
-    float cy = cos(r * one_d_noise(got_posis.y));
-    float sy = sin(r * one_d_noise(got_posis.y));
+// // Time-based angle
+//     float ang_1 = u_time * one_d_noise(u_time) * spatial * 2.0;
 
-    float cz = cos(r * one_d_noise(got_posis.z));
-    float sz = sin(r * one_d_noise(got_posis.z));
+//     float c = cos(ang_1);
+//     float s = sin(ang_1);
+//     float ic = sin(u_time) - c;
 
-// Rotation X
-    mat3 rotX = mat3(1.0, 0.0, 0.0, 0.0, cx, -sx, 0.0, sx, cx);
+// // Rodrigues rotation
+//     mat3 rot = mat3(c + axis.x * axis.x * ic, axis.x * axis.y * ic - axis.z * s, axis.x * axis.z * ic + axis.y * s, axis.y * axis.x * ic + axis.z * s, c + axis.y * axis.y * ic, axis.y * axis.z * ic - axis.x * s, axis.z * axis.x * ic - axis.y * s, axis.z * axis.y * ic + axis.x * s, c + axis.z * axis.z * ic);
 
-// Rotation Y
-    mat3 rotY = mat3(cy, 0.0, sy, 0.0, 1.0, 0.0, -sy, 0.0, cy);
+    got_posis -= sin(u_time * normal * position);
 
-// Rotation Z
-    mat3 rotZ = mat3(cz, -sz, 0.0, sz, cz, 0.0, 0.0, 0.0, 1.0);
+    //normal 3 degree rotation. 
 
-// Combine rotations (order matters!)
-    mat3 rot = rotZ * rotY * rotX;
+    float angle = u_time * rot_speed;
 
-    got_posis.xyz = rot * got_posis.xyz;
+    mat3 rotX = mat3(1.0, 0.0, 0.0, 0.0, cos(angle), -sin(angle), 0.0, sin(angle), cos(angle));
 
-    // float angle = u_time * 0.3;
+    mat3 rotY = mat3(cos(angle), 0.0, sin(angle), 0.0, 1.0, 0.0, -sin(angle), 0.0, cos(angle));
 
-    // mat3 rotX = mat3(1.0, 0.0, 0.0, 0.0, cos(angle), -sin(angle), 0.0, sin(angle), cos(angle));
+    mat3 rotZ = mat3(cos(angle), -sin(angle), 0.0, sin(angle), cos(angle), 0.0, 0.0, 0.0, 1.0);
 
-    // mat3 rotY = mat3(cos(angle), 0.0, sin(angle), 0.0, 1.0, 0.0, -sin(angle), 0.0, cos(angle));
+    // got_posis.xyz = rotZ* rotX * rotY * got_posis.xyz;
 
-    // mat3 rotZ = mat3(cos(angle), -sin(angle), 0.0, sin(angle), cos(angle), 0.0, 0.0, 0.0, 1.0);
-
-    // got_posis.xyz = rotZ * rotY * rotX * got_posis.xyz;
+    got_posis.xyz = rotX * rotY * rotZ * got_posis.xyz;
 
     vec4 model_position = vec4(got_posis, 1.0);
 
