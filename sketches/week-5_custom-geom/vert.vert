@@ -13,6 +13,8 @@ attribute vec2 uv;
 
 varying vec2 vUv;
 
+varying vec4 position_things; 
+
 //helper from stackoverflow to generate a random number between 0,1.
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -40,10 +42,15 @@ float one_d_noise(float t) {
 }
 
 void main() {
-
     vec4 got_posis = vec4(position, 1.0);
+    position_things = got_posis; 
+
+    float t = u_time * 0.3;
+    got_posis.x += noise(vec2(got_posis.y * 1.0 + sin(t), t * 0.5)) * 0.07;
+    got_posis.x += sin(t + got_posis.y * 1.0) * 0.04;
+    got_posis.y += noise(vec2(got_posis.x * 1.0 + cos(t), t * 0.7 + 100.0)) * 0.07;
+    got_posis.y += cos(t + got_posis.x * 1.0) * 0.04;
 
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * got_posis;
-
     vUv = uv;
 }

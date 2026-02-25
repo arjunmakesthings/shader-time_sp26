@@ -1,6 +1,7 @@
 precision mediump float;
 
 varying vec2 vUv;
+varying vec4 position_things;
 
 uniform vec2 u_resolution;
 uniform float u_time;
@@ -23,9 +24,10 @@ float noise(vec2 st) {
 }
 
 void main() {
-    vec4 posis = gl_FragCoord;
 
-    vec2 norm_posis = vec2(posis.x, posis.y) / u_resolution;
+    float r = position_things.x * 0.5 + 0.5 * sin(u_time + position_things.x * 4.2);
+    float g = position_things.y * 0.5 + 0.5 * cos(u_time + position_things.y * 6.2);
+    float b = 0.5 + 0.5 * sin(u_time + position_things.z * 12.5);
 
-    gl_FragColor = vec4(norm_posis.x, 0.0, 0.0, 1.0);
+    gl_FragColor = vec4(r, g, b, 0.89);
 }

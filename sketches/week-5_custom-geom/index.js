@@ -18,7 +18,7 @@ scene.background = new THREE.Color(255, 255, 255); //rendered as rgb.
 
 // Create camera.
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
-camera.position.z = 3;
+camera.position.z =0.5;
 scene.add(camera);
 
 // load shaders, but as text files. the browser automatically converts them to javascript modules.
@@ -31,24 +31,63 @@ async function loadShader(url) {
 const aspect = window.innerWidth / window.innerHeight;
 
 //load geometry, material, mesh + add to scene.
-// Generate positions.
-const positions = [];
-positions.push(-2.0, -2.0, 0.0); // bottom-left
-positions.push(2.0, -2.0, 0.0); // bottom-right
-positions.push(-2.0, 2.0, 0.0); // top-left
-positions.push(2.0, 2.0, 0.0); // top-right
+//generate random positions:
 
-// Generate UVs.
-const uvs = [];
-uvs.push(0.0, 1.0); // bottom-left
-uvs.push(1.0, 1.0); // bottom-right
-uvs.push(0.0, 0.0); // top-left
-uvs.push(1.0, 0.0); // top-right
+//helper for generating random integers.
+function rando_int(min = 0, max = 1) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-// Generate indices.
-const indices = [];
-indices.push(0, 1, 2);
-indices.push(1, 3, 2);
+const amount = rando_int(100, 1000);
+// console.log(amount);
+
+const positions = make_positions(rando_int(300, 3000), 4);
+
+function make_positions(n = 10, range = 2) {
+  // n: number of points, range: half-width/height of area (so -range to +range).
+  const positions = [];
+  for (let i = 0; i < n; i++) {
+    const x = (Math.random() * 2 - 1) * range;
+    const y = (Math.random() * 2 - 1) * range;
+    const z = (Math.random() * 2 - 1) * range;
+    positions.push(x, y, z);
+  }
+  return positions;
+}
+
+const vertice_nums = positions.length / 3; //each position has three attributes; so.
+
+function make_uvs() {
+  //pass uvs as if nothing has changed.
+  const uvs = [];
+  for (let i = 0; i < vertice_nums; i++) {
+    const u = i / (vertice_nums - 1);
+    const v = i / (vertice_nums - 1);
+    uvs.push(u, v);
+  }
+  return uvs;
+}
+
+const uvs = make_uvs();
+
+//shuffle the index for the order in which they should be drawn.
+const indices = make_shuffled_indices();
+
+function make_shuffled_indices() {
+  const indices = [];
+
+  for (let i = 0; i < vertice_nums; i++) {
+    indices.push(i);
+  }
+
+  for (let i = vertice_nums - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return indices;
+}
 
 // Create geometry.
 const planeGeo = new THREE.BufferGeometry();
@@ -56,12 +95,10 @@ planeGeo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)
 planeGeo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
 planeGeo.setIndex(indices);
 
-console.log(uvs); 
-
 // Create material.
 const frag_shader = await loadShader("./frag.frag");
-
 const vert_shader = await loadShader("./vert.vert");
+
 const planeMat = new THREE.RawShaderMaterial({
   vertexShader: vert_shader,
   fragmentShader: frag_shader,
@@ -80,6 +117,8 @@ const clock = new THREE.Clock(); // tracks elapsed time
 //animation loop:
 const tick = () => {
   renderer.render(scene, camera);
+
+  planeMat.uniforms.u_time.value = clock.getElapsedTime();
 
   requestAnimationFrame(tick);
 };
