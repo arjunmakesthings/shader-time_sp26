@@ -18,7 +18,7 @@ scene.background = new THREE.Color(255, 255, 255); //rendered as rgb.
 
 // Create camera.
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
-camera.position.z =0.025;
+camera.position.z = 0.025;
 scene.add(camera);
 
 // load shaders, but as text files. the browser automatically converts them to javascript modules.
@@ -43,7 +43,7 @@ function rando_int(min = 0, max = 1) {
 const amount = rando_int(100, 1000);
 // console.log(amount);
 
-const positions = make_positions(rando_int(30000, 60000), 0.25);
+const positions = make_positions(rando_int(30000, 47000), 0.25);
 
 function make_positions(n = 10, range = 2) {
   // n: number of points, range: half-width/height of area (so -range to +range).
@@ -88,7 +88,6 @@ function make_shuffled_indices() {
   }
   return indices;
 }
-
 
 // Create geometry.
 const planeGeo = new THREE.BufferGeometry();
