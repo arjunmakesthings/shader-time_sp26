@@ -51,6 +51,16 @@ void main() {
     got_posis.y += noise(vec2(got_posis.x * 1.0 + cos(t), t * 0.7 + 100.0)) * 0.07;
     got_posis.y += cos(t + got_posis.x * 1.0) * 0.04;
 
+    float angle = u_time * 0.2;
+    float s = sin(angle);
+    float c = cos(angle);
+    vec2 rotated = vec2(
+        got_posis.x * c - got_posis.y * s,
+        got_posis.x * s + got_posis.y * c
+    );
+    got_posis.x = rotated.x;
+    got_posis.y = rotated.y;
+
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * got_posis;
     vUv = uv;
 }

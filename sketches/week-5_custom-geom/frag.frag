@@ -24,10 +24,11 @@ float noise(vec2 st) {
 }
 
 void main() {
+    float slow_time = u_time * 0.8;
 
-    float r = position_things.x * 0.5 + 0.5 * sin(u_time + position_things.x * 4.2);
-    float g = position_things.y * 0.5 + 0.5 * cos(u_time + position_things.y * 6.2);
-    float b = 0.5 + 0.5 * sin(u_time + position_things.z * 12.5);
+    float r = position_things.x * 0.5 + 0.5 * sin(slow_time + position_things.x);
+    float g = position_things.y * 0.5 + 0.5 * cos(slow_time + position_things.y);
+    float b = 0.5 + 0.5 * sin(slow_time + position_things.z);
 
-    gl_FragColor = vec4(r, g, b, 0.89);
+    gl_FragColor = vec4(r, g, b, 1.0);
 }
