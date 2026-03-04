@@ -10,12 +10,12 @@ thought:
 
 */
 
-const margin = 50;
+let main_shader;
+let compute_shader;
 
-let main_shader; 
-let compute_shader; 
+let compute_buffer;
 
-let compute_buffer; 
+let m_coords = [-1000, -1000]; //set to offscreen.
 
 function preload() {
   main_shader = loadShader("vert.vert", "frag.frag");
@@ -25,7 +25,7 @@ function preload() {
 function setup() {
   // createCanvas(1000, 562); //in 16:9 aspect ratio.
   createCanvas(800, 800, WEBGL); //square to handle calculations better.
-  pixelDensity(1); 
+  pixelDensity(1);
   noStroke();
 
   compute_buffer = createGraphics(width, height, WEBGL); //a canvas that you never draw, but use to compute.
@@ -36,14 +36,20 @@ function draw() {
 
   //compute shader:
   compute_buffer.shader(compute_shader);
+  compute_shader.setUniform("u_prev", compute_buffer);
+  compute_shader.setUniform("u_mouse", m_coords);
+  compute_shader.setUniform("u_res", [width, height]);
   compute_buffer.rect(0, 0, width, height);
 
   //main shader.
   shader(main_shader);
 
   //uniforms for the main buffer:
-  main_shader.setUniform("u_map", compute_buffer); // Pass buffer as sampler2D
+  main_shader.setUniform("u_map", compute_buffer);
   main_shader.setUniform("u_res", [width, height]);
-
   rect(0, 0, width, height);
+}
+
+function mousePressed() {
+  m_coords = [mouseX, mouseY];
 }

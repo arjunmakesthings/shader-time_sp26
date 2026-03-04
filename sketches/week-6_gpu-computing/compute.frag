@@ -2,12 +2,21 @@
 precision mediump float;
 #endif
 
-// Passed attributes.
+//passed stuff: 
 varying vec2 vTexCoord;
 
-// Custom uniforms.
-uniform sampler2D uCaptureMap;
+//custom uniforms:
+uniform vec2 u_mouse;
+uniform vec2 u_res;
 
 void main() {
-    gl_FragColor = vec4(255.0, 0.0, 0.0, 1.0);
+    vec2 fragCoord = vTexCoord * u_res;
+
+    float d = distance(fragCoord, u_mouse);
+
+    if(d < 5.0) {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // red
+    } else {
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); // black
+    }
 }
