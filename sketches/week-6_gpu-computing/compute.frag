@@ -44,10 +44,9 @@ void main() {
     // Convert uv to pixel coordinates
     vec2 fragCoord = vTexCoord * u_res;
 
-    // Fetch previous ink value
+    //sample from previous ink values.
     float ink = texture2D(u_prev, vTexCoord).r;
 
-    // --- Drop ink on click ---
     vec2 offset = fragCoord - u_mouse;
 
     // distort distance to break circle shape
@@ -90,12 +89,8 @@ void main() {
         //offload proportionally. 
         float ink_to_give = min(rate, total_demand);
 
-        // Reduce own ink by outflow so ink is conserved
+        //subtract from own ink. 
         ink -= ink_to_give;
-
-        //arbitary values like 97%. 
-        // Note: actual addition to neighbors happens next frame when neighbors read u_prev
-        // corners get lesser (ink spreads circularly). 
     }
 
     //tiny diffusion: 
