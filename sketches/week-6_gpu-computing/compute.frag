@@ -1,3 +1,12 @@
+/*
+the structure of this shader is as follows: 
+
+r->
+g->
+b->
+a->
+*/
+
 #ifdef GL_ES
 precision mediump float;
 #endif
