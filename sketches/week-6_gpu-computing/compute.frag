@@ -15,8 +15,8 @@ void main() {
     float d = distance(fragCoord, u_mouse);
 
     if(d < 5.0) {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // red
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     } else {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); // black
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
 }
