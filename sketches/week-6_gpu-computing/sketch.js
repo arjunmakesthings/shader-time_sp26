@@ -48,8 +48,8 @@ function draw() {
   main_shader.setUniform("u_map", compute_buffer);
   main_shader.setUniform("u_res", [width, height]);
   rect(0, 0, width, height);
-}
 
-function mousePressed() {
-  m_coords = [mouseX, mouseY];
+  if (frameCount %30==0){
+    m_coords = [random(200,width-200), random(200, height-200)]; 
+  }
 }

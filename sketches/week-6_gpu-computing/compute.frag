@@ -1,4 +1,4 @@
-//ink-blotting, GPU version; arjun, shobhan & vivek; march 2024 rewrite.
+//ink-blotting, GPU version; arjun, shobhan & vivek; march 2024 rewrite, fixed persistence.
 // Preserves CPU logic, but fully parallelized for WebGL.
 
 #ifdef GL_ES
@@ -20,7 +20,24 @@ uniform vec2 u_res;
 // Parameters
 const float capacity = 1.0;    // max ink per pixel
 const float rate = 0.02;       // max ink offload per frame
-const float mouse_radius = 100.0; // radius of ink drop on click
+float splat = 100.0; // radius of ink drop. 
+
+//helper from stackoverflow to generate a random number between 0,1.
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+//helper for noise.
+float noise(vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
 
 void main() {
     // Convert uv to pixel coordinates
@@ -31,7 +48,7 @@ void main() {
 
     // --- Drop ink on click ---
     float d = distance(fragCoord, u_mouse);
-    if(d < mouse_radius) {
+    if(d < splat) {
         ink = 1.0; // max ink
     }
 
@@ -69,17 +86,12 @@ void main() {
         //offload proportionally. 
         float ink_to_give = min(rate, total_demand);
 
-        //arbitary values like 97%. 
-        ink += (dif_up / total_demand) * ink_to_give * -0.97;
-        ink += (dif_down / total_demand) * ink_to_give * -0.97;
-        ink += (dif_left / total_demand) * ink_to_give * -0.97;
-        ink += (dif_right / total_demand) * ink_to_give * -0.97;
+        // Reduce own ink by outflow so ink is conserved
+        ink -= ink_to_give;
 
-        //corners get lesser (ink spreads circularly). 
-        ink += (dif_ul / total_demand) * ink_to_give * -0.54;
-        ink += (dif_ur / total_demand) * ink_to_give * -0.54;
-        ink += (dif_dl / total_demand) * ink_to_give * -0.54;
-        ink += (dif_dr / total_demand) * ink_to_give * -0.54;
+        //arbitary values like 97%. 
+        // Note: actual addition to neighbors happens next frame when neighbors read u_prev
+        // corners get lesser (ink spreads circularly). 
     }
 
     //tiny diffusion: 
@@ -92,8 +104,10 @@ void main() {
     if(ink - right > 0.06)
         ink -= 0.01;
 
-        //only give as much as a paper can take.
+    //only give as much as a paper can take.
     ink = clamp(ink, 0.0, capacity);
+
+        ink += noise(vTexCoord * 10.0) * 0.01; // small amount of noise
 
     // Output in red channel
     gl_FragColor = vec4(ink, 0.0, 0.0, 1.0);
