@@ -19,9 +19,9 @@ uniform vec2 u_mouse;
 uniform vec2 u_res;
 
 // Parameters
-const float capacity = 1.0;    // max ink per pixel
-const float rate = 0.02;       //max ink offload per frame
-float splat = 10.0; //radius of ink drop. 
+float capacity = 1.0;    // max ink per pixel
+ float rate = 0.009;       //max ink offload per frame
+float splat = 80.0; //radius of ink drop. 
 
 //helper from stackoverflow to generate a random number between 0,1.
 float random(vec2 st) {
@@ -41,6 +41,8 @@ float noise(vec2 st) {
 }
 
 void main() {
+
+    // splat = 100.0 + random(vTexCoord); 
     // Convert uv to pixel coordinates
     vec2 fragCoord = vTexCoord * u_res;
 
@@ -57,7 +59,7 @@ void main() {
     }
 
     //usually keep to 1.0 for single pixel offset. if you reduce it, it's higher resolution. 
-    vec2 px = 1.0 / u_res; // single pixel offset
+    vec2 px = 0.5 / u_res; // single pixel offset
 
     //neighbours: 
     float up = texture2D(u_prev, vTexCoord + vec2(0.0, px.y)).r;

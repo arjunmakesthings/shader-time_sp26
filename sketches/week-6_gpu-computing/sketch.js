@@ -31,6 +31,9 @@ function setup() {
   compute_buffer = createGraphics(width, height, WEBGL); //a canvas that you never draw, but use to compute.
 }
 
+let init_x = 50; 
+let init_y = 50; 
+
 function draw() {
   background(255);
 
@@ -49,16 +52,13 @@ function draw() {
   main_shader.setUniform("u_res", [width, height]);
   rect(0, 0, width, height);
 
-  // if (frameCount %30==0){
-  //   m_coords = [random(200,width-200), random(200, height-200)]; 
-  // }
-
-  for (let x = 200; x<width-200; x+=1){
-    m_coords[x,x]; 
+  if (frameCount %300==0){
+    init_x = random(50,width-50); 
+    init_y = random(50, width - 50); 
   }
 
-    let t = frameCount / 300.0; // normalized time
-    let x = lerp(200, width - 200, t % 1.0);
-    let y = lerp(200, height - 200, t % 1.0);
+    let t = frameCount / 300.0;
+    let x = lerp(init_x, width - 50, t % 1.0);
+    let y = lerp(init_y, height - 50, t % 1.0);
     m_coords = [x, y];
 }
