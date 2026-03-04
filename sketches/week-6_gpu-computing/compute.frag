@@ -9,19 +9,17 @@ precision mediump float;
 // Passed from vertex shader
 varying vec2 vTexCoord;
 
-// Previous frame's ink map
+//passed uniforms: 
+uniform vec2 u_res;
 uniform sampler2D u_prev;
 
-// Mouse click position to inject ink
+// mouse for injection. originally mouse, but later just lerped it in sketch. 
 uniform vec2 u_mouse;
 
-// Canvas resolution
-uniform vec2 u_res;
-
-// Parameters
-float capacity = 0.8;    // max ink per pixel
-float rate = 0.01;       //max ink offload per frame
-float splat = 20.0; //radius of ink drop. 
+//ink params: 
+float capacity = 0.8; //max ink per pixel
+float rate = 0.01; //max ink offload per frame
+float splat = 100.0; //radius of ink drop. 
 
 //helper from stackoverflow to generate a random number between 0,1.
 float random(vec2 st) {
