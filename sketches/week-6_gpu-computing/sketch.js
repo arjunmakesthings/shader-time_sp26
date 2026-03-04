@@ -34,6 +34,9 @@ function setup() {
 let init_x = 50; 
 let init_y = 50; 
 
+let target_x = 800-50; 
+let target_y = 800 - 50; 
+
 function draw() {
   background(255);
 
@@ -52,13 +55,19 @@ function draw() {
   main_shader.setUniform("u_res", [width, height]);
   rect(0, 0, width, height);
 
-  if (frameCount %300==0){
-    init_x = random(50,width-50); 
-    init_y = random(50, width - 50); 
+  //make it repeat over time.
+  
+  if (frameCount % 300 === 0) {
+    init_x = target_x;
+    init_y = target_y;
+
+    target_x = random(50, width - 50);
+    target_y = random(50, height - 50);
   }
 
-    let t = frameCount / 300.0;
-    let x = lerp(init_x, width - 50, t % 1.0);
-    let y = lerp(init_y, height - 50, t % 1.0);
-    m_coords = [x, y];
+  let t = (frameCount % 300) / 300.0;
+  let x = lerp(init_x, target_x, t);
+  let y = lerp(init_y, target_y, t);
+
+  m_coords = [x, y];
 }

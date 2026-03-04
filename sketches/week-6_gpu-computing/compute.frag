@@ -19,9 +19,9 @@ uniform vec2 u_mouse;
 uniform vec2 u_res;
 
 // Parameters
-float capacity = 1.0;    // max ink per pixel
- float rate = 0.009;       //max ink offload per frame
-float splat = 80.0; //radius of ink drop. 
+float capacity = 0.8;    // max ink per pixel
+float rate = 0.01;       //max ink offload per frame
+float splat = 20.0; //radius of ink drop. 
 
 //helper from stackoverflow to generate a random number between 0,1.
 float random(vec2 st) {
