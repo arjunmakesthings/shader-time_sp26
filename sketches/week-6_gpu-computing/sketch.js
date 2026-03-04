@@ -32,7 +32,7 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  background(255);
 
   //compute shader:
   compute_buffer.shader(compute_shader);
