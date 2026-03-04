@@ -1,25 +1,20 @@
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-// built in uniforms: 
-uniform mat4 uProjectionMatrix; //this converts 3d coordinates to 2d screen coordinates.
-uniform mat4 uModelViewMatrix; //combines model & camera transformations.
-
-// additionally, p5 passes the following:
+// Mesh attributes.
 attribute vec3 aPosition;
-attribute vec2 aTexCoord; //only when we pass a texture.
+attribute vec2 aTexCoord;
 
-// custom uniforms that we may have passed:
-uniform vec2 u_res;
+// Passed attributes.
+varying vec2 vTexCoord;
 
 void main() {
-  //p5 passes a vec3. we convert this to a vec4. let the fourth just be 1, because it makes matrix multiplication easier.
+  // Copy the vec3 position into a vec4.
   vec4 position = vec4(aPosition, 1.0);
-  
-  //since p5 sets the origin to the center, we do this to avoid offsetting the drawing.
-  position.xy -= u_res * 0.5;
 
-  //transforms vertex position from model to screen space. we let this be as is. this tells the gpu where to draw the vertex.
-  gl_Position = uProjectionMatrix * uModelViewMatrix * position;
+  // Move the shape for the origin in the center.
+  position.xy = position.xy * 2.0 - 1.0;
+
+  // Set the clip space position.
+  gl_Position = position;
+
+  // Pass data to the fragment shader.
+  vTexCoord = aTexCoord;
 }

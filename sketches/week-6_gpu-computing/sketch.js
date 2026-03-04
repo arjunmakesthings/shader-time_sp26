@@ -12,35 +12,38 @@ thought:
 
 const margin = 50;
 
-let my_shader;
+let main_shader; 
+let compute_shader; 
+
+let compute_buffer; 
 
 function preload() {
-  my_shader = loadShader("vert.vert", "frag.frag");
+  main_shader = loadShader("vert.vert", "frag.frag");
+  compute_shader = loadShader("vert.vert", "compute.frag");
 }
 
 function setup() {
   // createCanvas(1000, 562); //in 16:9 aspect ratio.
   createCanvas(800, 800, WEBGL); //square to handle calculations better.
-
+  pixelDensity(1); 
   noStroke();
+
+  compute_buffer = createGraphics(width, height, WEBGL); //a canvas that you never draw, but use to compute.
 }
 
 function draw() {
   background(0);
 
-  shader(my_shader); //set the shader.
+  //compute shader:
+  compute_buffer.shader(compute_shader);
+  compute_buffer.rect(0, 0, width, height);
 
-  /* pass uniforms into the shader: */
+  //main shader.
+  shader(main_shader);
 
-  my_shader.setUniform("u_res", [width, height]); //we use this to translate the drawing onto the center later.
+  //uniforms for the main buffer:
+  main_shader.setUniform("u_map", compute_buffer); // Pass buffer as sampler2D
+  main_shader.setUniform("u_res", [width, height]);
 
-  beginShape();
-
-  //a rectangle, but this could be any mesh.
-  vertex(margin, margin);
-  vertex(width - margin, margin);
-  vertex(width - margin, height - margin);
-  vertex(margin, height - margin);
-
-  endShape();
+  rect(0, 0, width, height);
 }

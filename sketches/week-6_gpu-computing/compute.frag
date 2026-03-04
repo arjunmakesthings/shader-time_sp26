@@ -5,14 +5,9 @@ precision mediump float;
 // Passed attributes.
 varying vec2 vTexCoord;
 
-uniform sampler2D u_map;
-uniform vec2 u_res;
-
 // Custom uniforms.
 uniform sampler2D uCaptureMap;
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / u_res;
-    vec4 color = texture2D(u_map, uv);
-    gl_FragColor = color;
+    gl_FragColor = vec4(255.0, 0.0, 0.0, 1.0);
 }
