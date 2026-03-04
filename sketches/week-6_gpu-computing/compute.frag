@@ -20,7 +20,7 @@ uniform vec2 u_res;
 // Parameters
 const float capacity = 1.0;    // max ink per pixel
 const float rate = 0.02;       // max ink offload per frame
-float splat = 100.0; // radius of ink drop. 
+float splat = 10.0; // radius of ink drop. 
 
 //helper from stackoverflow to generate a random number between 0,1.
 float random(vec2 st) {
@@ -47,7 +47,10 @@ void main() {
     float ink = texture2D(u_prev, vTexCoord).r;
 
     // --- Drop ink on click ---
-    float d = distance(fragCoord, u_mouse);
+    vec2 offset = fragCoord - u_mouse;
+
+    // distort distance to break circle shape
+    float d = length(offset + vec2(noise(vTexCoord * 10.0) * 50.0, noise(vTexCoord * 20.0) * 50.0));
     if(d < splat) {
         ink = 1.0; // max ink
     }
@@ -107,7 +110,8 @@ void main() {
     //only give as much as a paper can take.
     ink = clamp(ink, 0.0, capacity);
 
-        ink += noise(vTexCoord * 10.0) * 0.01; // small amount of noise
+    // small amount of noise to break uniformity
+    // ink += noise(vTexCoord * 10.0) * 0.01;
 
     // Output in red channel
     gl_FragColor = vec4(ink, 0.0, 0.0, 1.0);

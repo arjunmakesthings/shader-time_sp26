@@ -49,7 +49,12 @@ function draw() {
   main_shader.setUniform("u_res", [width, height]);
   rect(0, 0, width, height);
 
-  if (frameCount %30==0){
-    m_coords = [random(200,width-200), random(200, height-200)]; 
-  }
+  // if (frameCount %30==0){
+  //   m_coords = [random(200,width-200), random(200, height-200)]; 
+  // }
+
+    let t = frameCount / 300.0; // normalized time
+    let x = lerp(200, width - 200, t % 1.0);
+    let y = lerp(200, height - 200, t % 1.0);
+    m_coords = [x, y];
 }
