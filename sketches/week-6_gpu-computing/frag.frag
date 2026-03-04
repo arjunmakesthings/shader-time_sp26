@@ -5,7 +5,6 @@ precision mediump float;
 varying vec2 vTexCoord;
 
 uniform sampler2D u_map;
-uniform vec2 u_res;
 
 void main() {
     vec2 uv = vTexCoord;
