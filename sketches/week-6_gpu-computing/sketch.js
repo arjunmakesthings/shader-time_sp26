@@ -53,6 +53,10 @@ function draw() {
   //   m_coords = [random(200,width-200), random(200, height-200)]; 
   // }
 
+  for (let x = 200; x<width-200; x+=1){
+    m_coords[x,x]; 
+  }
+
     let t = frameCount / 300.0; // normalized time
     let x = lerp(200, width - 200, t % 1.0);
     let y = lerp(200, height - 200, t % 1.0);

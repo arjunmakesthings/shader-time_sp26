@@ -1,4 +1,5 @@
-//ink-blotting, GPU version; arjun, shobhan & vivek; march 2024 rewrite, fixed persistence.
+//derived from ink-blotting algorithm (in original_algorithm). 
+
 // Preserves CPU logic, but fully parallelized for WebGL.
 
 #ifdef GL_ES
@@ -19,8 +20,8 @@ uniform vec2 u_res;
 
 // Parameters
 const float capacity = 1.0;    // max ink per pixel
-const float rate = 0.02;       // max ink offload per frame
-float splat = 10.0; // radius of ink drop. 
+const float rate = 0.02;       //max ink offload per frame
+float splat = 10.0; //radius of ink drop. 
 
 //helper from stackoverflow to generate a random number between 0,1.
 float random(vec2 st) {
